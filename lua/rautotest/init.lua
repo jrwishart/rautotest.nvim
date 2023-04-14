@@ -77,7 +77,7 @@ M.make_autocmd = function(pair_table)
     })
 end
 
-M.find_files = function()
+M.add_test_links = function()
     local current_buffer = vim.api.nvim_get_current_buf()
     -- Check the buffer is a file
     if vim.api.nvim_buf_get_option(current_buffer, "buftype") ~= "" then
@@ -108,7 +108,7 @@ M.find_files = function()
     require'telescope.builtin'.find_files(opts)
 end
 
-M.remove_tests = function()
+M.remove_test_links = function()
     local autocmds = vim.api.nvim_get_autocmds({ group = M.settings.pkgname })
     if #autocmds == 0 then
         print("No tests to remove")
