@@ -1,0 +1,8 @@
+Package: FakePackage
+Type: Package
+Title: A fake package to unit test the tester plugin
+Version: 1.0
+Autho: Some guy <some.guy.com>
+Maintainer: Some guy <some.guy.com>
+Description: Utility functions
+License: GPL-3
