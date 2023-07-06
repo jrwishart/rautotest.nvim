@@ -4,7 +4,7 @@ An nvim plugin for automating test files in an R package when an R source file b
 
 ## 📦 Installation
 
-Use your favorite plugin manager to install rautotest.nvim and its dependencies (currently depends on [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim) and [mllg/vim-devtools-plugin](https://github.com/mllg/vim-devtools-plugin)). For example,
+Use your favorite plugin manager to install rautotest.nvim and its dependencies (currently depends on [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim) and having R with plumber and devtools libraries installed). For example,
 
 ### [packer](https://github.com/wbthomason/packer.nvim)
 
@@ -12,10 +12,7 @@ Use your favorite plugin manager to install rautotest.nvim and its dependencies 
 use {
     "jrwishart/rautotest.nvim",
     ft = {'r'}, -- optional, only load plugin for r files
-    requires = {
-        "nvim-telescope/telescope.nvim",
-        "mllg/vim-devtools-plugin"
-    }
+    requires = { "nvim-telescope/telescope.nvim" }
 }
 ```
 
@@ -24,7 +21,7 @@ use {
 ```lua
 {
     jrwishart/rautotest.nvim,
-    dependencies = { 'telescope.nvim', 'mllg/vim-devtools-plugin' },
+    dependencies = { 'telescope.nvim' },
     ft = {'r'} -- optional, only load plugin for r files
 }
 ```
