@@ -28,7 +28,7 @@ use {
 
 ## ✨ Usage
 
-When you save a file, `rautotest.nvim` will run the test file associated with the source file using the `:RTestPackage` command is invoked with the test file that is linked. The test files that are linked need to be specified by the user. The workflow is as follows:
+When you save a file, `rautotest.nvim` will run testthat against the test file associated with the source file using plumber and then decoaring the test file with information about results (pass or fail). The test files that are linked need to be specified by the user. The workflow is as follows:
 
 1. Link the files: open the desired R source file in a buffer and then run the command
 
