@@ -181,18 +181,33 @@ local function resolve_path()
     return str:match('(.*' .. get_path_separator() .. ')')
 end
 
-M.port_check_fun_string = function()
+--- Function to decode the json result and throw an error if the curl call failed
+--- @param curl_result table The result of the curl call
+local decode_curl_result = function(curl_result)
+    if curl_result == nil or curl_result.status ~= 200 or curl_result.body == nil then
+        error("curl failed: " .. vim.inspect(curl_result))
+    end
+    return vim.fn.json_decode(curl_result.body);
+end
+
+local port_check_fun_string = function()
     if vim.fn.has("macunix") == 1 then
         return "lsof -i -P"
     end
     error("Only macunix is supported at the moment")
 end
 
+--- Takes a path and constructs a plumber url based off the plumber port
+--- @param path string The path to append to the url
+local construct_plumber_url = function(path)
+    return "http://localhost:" .. M.options.plumber_port .. "/" .. path
+end
+
 M.plumber_is_running = function()
     if M.options.plumber_port == nil then
         return false
     end
-    local port_check_string = M.port_check_fun_string()
+    local port_check_string = port_check_fun_string()
     local check_port = vim.fn.system(port_check_string .. " | grep LISTEN | grep " .. M.options.plumber_port)
     return string.sub(check_port, 1, 2) == "R "
 end
@@ -225,6 +240,8 @@ M.run_plumber = function()
     return pid
 end
 
+--- A test call to plumber that echos the input
+---@param word string The word to echo in the test call to plumber
 function M.say(word)
     local curl = require "plenary.curl"
     local opts = nil
@@ -235,19 +252,9 @@ function M.say(word)
             headers = { content_type = "application/json" },
         }
     end
-    local curl_result = curl.get(M.construct_plumber_url("echo"), opts)
-    return M.decode_curl_result(curl_result)
-end
-
-function M.construct_plumber_url(path)
-    return "http://localhost:" .. M.options.plumber_port .. "/" .. path
-end
-
-function M.decode_curl_result(curl_result)
-    if curl_result == nil or curl_result.status ~= 200 or curl_result.body == nil then
-        error("curl failed: " .. vim.inspect(curl_result))
-    end
-    return vim.fn.json_decode(curl_result.body);
+    local url = construct_plumber_url("echo")
+    local curl_result = curl.get(url, opts)
+    return decode_curl_result(curl_result)
 end
 
 M.kill_plumber = function()
@@ -262,6 +269,9 @@ M.kill_plumber = function()
     return result
 end
 
+--- Run testthat tests on a file
+--- @param test_file string The complete path of the test file to run the tests on
+--- @param source_dir string The directory of the source package (used for devtools
 function M.run_testthat(test_file, source_dir)
     if not M.plumber_is_running() then
         return "Plumber is not running so cannot run testthat tests"
@@ -271,13 +281,15 @@ function M.run_testthat(test_file, source_dir)
         test_file = test_file,
         current_dir = source_dir,
     })
-    local curl_result = curl.post(M.construct_plumber_url("test"), {
+    local url = construct_plumber_url("test")
+    local opts = {
         body = data_arg,
         headers = {
             content_type = "application/json",
         },
-    })
-    return M.decode_curl_result(curl_result)
+    }
+    local curl_result = curl.post(url, opts)
+    return decode_curl_result(curl_result)
 end
 
 M.run_plumber_testthat = function(file_to_test, buf_nr)
@@ -289,6 +301,7 @@ M.run_plumber_testthat = function(file_to_test, buf_nr)
         file_to_test = vim.api.nvim_buf_get_name(buf_nr)
     end
     local current_working_directory = vim.loop.cwd()
+    if current_working_directory == nil then return end
     local testthat_output = M.run_testthat(file_to_test, current_working_directory)
     if testthat_output == nil then
         return
@@ -296,7 +309,8 @@ M.run_plumber_testthat = function(file_to_test, buf_nr)
     local ns = M.namespace
     vim.api.nvim_buf_clear_namespace(buf_nr, ns, 0, -1)
     local failed = M.process_all_blocks(testthat_output, buf_nr, ns)
-    vim.diagnostic.set(ns, buf_nr, failed, {})
+    local diagnostic_opts = { virtual_text = false, }
+    vim.diagnostic.set(ns, buf_nr, failed, diagnostic_opts)
 end
 
 function M.process_all_blocks(testthat_output, buf_nr, ns)
@@ -373,8 +387,7 @@ function M.process_diagnostics_and_tag(block, buf_nr, ns, failed)
                 col = 0,
                 severity = diagnostic_severity,
                 source = "rautotest",
-                message = message,
-                user_data = { value.message[1] },
+                message = message .. value.message[1]
             })
         end
         vim.api.nvim_buf_set_extmark(buf_nr, ns, line_number, 0, {

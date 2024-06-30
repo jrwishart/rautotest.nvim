@@ -2,7 +2,7 @@
 #* @param msg The message to echo, used for testing
 #* @get /echo
 function(msg = "") {
-  list(msg = paste0("The message is: '", msg, "'"))
+    list(msg = paste0("The message is: '", msg, "'"))
 }
 
 processResults <- function(results) {
@@ -29,22 +29,12 @@ processTestBlock <- function(block) {
 #* @serializer json list(force = TRUE)
 #* @post /test
 function(test_file = NULL, current_dir) {
-    if (!requireNamespace("devtools"))
+    if (!requireNamespace("devtools", quietly = TRUE))
         stop("devtools package is not installed and needed to load package")
-    if (!requireNamespace("flipDevTools"))
-        stop("flipDevTools package is not installed and needed to load package")
     if (missing(current_dir))
         stop("current.dir is missing and needs to be specified")
     if (!dir.exists(current_dir))
         stop("current_dir :", current_dir, " does not exist")
-    flipDevToolsExists <- requireNamespace("flipDevTools", quietly = TRUE)
-    if (flipDevToolsExists) {
-        valid.package <- flipDevTools:::is.pkg(current_dir)
-        if (!valid.package)
-            stop("No package found at pkg.dir: ", current_dir)
-    }
-    if (!requireNamespace("devtools", quietly = TRUE))
-        stop("devtools package is not installed and required to run tests")
     devtools::load_all(current_dir)
     if (!requireNamespace("testthat", quietly = TRUE))
         stop("testthat package is not installed and required to run tests")
