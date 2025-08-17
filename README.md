@@ -1,10 +1,10 @@
 # rautotest.nvim
 
-An nvim plugin for automating test files in an R package when an R source file buffer is saved/written.
+An nvim plugin for R development that runs and decorates individual [testthat](https://testthat.r-lib.org/) files in a buffer with test results. It does this by running an external R process via the [plumber](www.rplumber.io/) package, which allows you to run R code as a web service. The plumber process is then used to call [devtools](https://cran.r-project.org/web/packages/devtools/index.html) to load the R package and [testthat](https://testthat.r-lib.org/) to run the tests.
 
 ## 📦 Installation
 
-Use your favorite plugin manager to install rautotest.nvim and its dependencies (currently depends on R with plumber and devtools libraries installed). For example,
+Use your favorite plugin manager to install rautotest.nvim and its dependencies (currently depends on R with plumber, testthat and devtools libraries installed). For example,
 
 ### [packer](https://github.com/wbthomason/packer.nvim)
 
