@@ -42,7 +42,7 @@ local function async_curl(url, opts)
         table.insert(args, "-d")
         table.insert(args, body)
     end
- 
+
     vim.fn.jobstart(args, {
         stdout_buffered = true,
         on_stdout = function(_, data, _)
