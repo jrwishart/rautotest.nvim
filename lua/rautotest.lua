@@ -97,6 +97,7 @@ M.defaults = {
 }
 
 M.options = vim.deepcopy(M.defaults)
+M.namespace = vim.api.nvim_create_namespace(M.options.namespace)
 
 function M.setup(opts)
     M.options = vim.tbl_deep_extend("force", M.defaults, opts or {})
